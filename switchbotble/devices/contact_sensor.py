@@ -38,6 +38,9 @@ class ContactSensor(MotionSensor):
     def _check_diff_contact(self):
         # Checing HAL state
         published = False
+        if self.prev['contact'] != self.contact or (self.prev['last_contact'] == 0 and self.last_contact > 60):
+            # ハードウェア側のバグ対応: なぜかこの数値だけ遅れてリセットされるのでライブラリ側で先にリセットしておく
+            self.last_contact = 0
         if self.prev['contact'] != self.contact:
             if self.closed:
                 # 1 or 2 => 0
@@ -46,7 +49,6 @@ class ContactSensor(MotionSensor):
             elif self.prev['closed']:
                 # 0 => 1 or 2
                 self.publish("open")
-                self.last_contact = 0 # バグ対応
                 published = True
             elif self.contact == 1:
                 # 2 => 1
