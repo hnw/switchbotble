@@ -8,7 +8,9 @@ def allCatchListener(topicObj = pub.AUTO_TOPIC, **msgData):
     device = msgData['arg1']
     address,topicName = topicObj.getName().split('.')
     message = ""
-    if topicName == "motion" or  topicName == "no_motion" or topicName == "motion_l" or  topicName == "no_motion_l":
+    if topicName == "connected":
+        message = f": rssi = {device.d.rssi}dBm"
+    elif topicName == "motion" or  topicName == "no_motion" or topicName == "motion_l" or  topicName == "no_motion_l":
         message = f": last_motion = {device.last_motion}"
     elif topicName == "open" or  topicName == "closed":
         message = f": contact = {device.contact}, last_contact = {device.last_contact}"
