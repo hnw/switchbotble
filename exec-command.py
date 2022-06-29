@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os,sys
 import asyncio
 import subprocess
 from datetime import datetime as dt
@@ -48,6 +49,7 @@ def all_off(arg1):
     subprocess.Popen(['/home/pi/bin/g', '全部のデバイスを消して'])
 
 async def main():
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
     ble = SwitchBotBLE()
     kitchen_addr = '00:00:5E:00:53:C7'
     bedroom1_addr = '00:00:5E:00:53:22'
