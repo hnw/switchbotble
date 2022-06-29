@@ -8,13 +8,13 @@ class SwitchBotDevice(metaclass=ABCMeta):
         self.debug = False
         self.d = d
         self.prev = None
-        self._map_fields(d, service_data)
+        self._update_properties(d, service_data)
         self.publish("found")
 
     def update(self, d: BLEDevice, service_data: bytearray):
         self.d = d
         self.prev = self.__dict__.copy()
-        self._map_fields(d, service_data)
+        self._update_properties(d, service_data)
         self._check_diff()
 
     def publish(self, topicName: str):
@@ -31,7 +31,7 @@ class SwitchBotDevice(metaclass=ABCMeta):
             topicName = f"{address}.{topicName}"
 
     @abstractmethod
-    def _map_fields(self, d: BLEDevice, service_data: bytearray):
+    def _update_properties(self, d: BLEDevice, service_data: bytearray):
         pass
 
     @abstractmethod

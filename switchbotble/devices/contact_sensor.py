@@ -10,7 +10,7 @@ class ContactSensor(MotionSensor):
         self.virtual_pir_limit = 0
         super().__init__(d, service_data)
 
-    def _map_fields(self, d: BLEDevice, service_data: bytearray):
+    def _update_properties(self, d: BLEDevice, service_data: bytearray):
         # Battery
         self.battery = service_data[2] & 0x7f
         # Light state
@@ -85,4 +85,4 @@ class ContactSensor(MotionSensor):
             self.log(f"button_count: {self.prev['button_count']} -> {self.button_count}")
 
     def __str__(self):
-        return f"{self.__class__.__name__}: battery={self.battery}, light={self.light}, motion={self.motion}, motion_l={self.motion_l}, last_motion={self.last_motion}, hal={self.hal}, hal_utc={self.hal_utc}, enter_count={self.enter_count}, exit_count={self.exit_count}, button_count={self.button_count}"
+        return f"{self.__class__.__name__}: battery={self.battery}, light={self.light}, motion={self.motion}, motion_l={self.motion_l}, last_motion={self.last_motion}, contact={self.contact}, hal_utc={self.last_contact}, enter_count={self.enter_count}, exit_count={self.exit_count}, button_count={self.button_count}"

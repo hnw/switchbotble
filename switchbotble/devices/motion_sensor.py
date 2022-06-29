@@ -10,7 +10,7 @@ class MotionSensor(SwitchBotDevice):
         self.motion_l_timeout = 180
         super().__init__(d, service_data)
 
-    def _map_fields(self, d: BLEDevice, service_data: bytearray):
+    def _update_properties(self, d: BLEDevice, service_data: bytearray):
         # Battery
         self.battery = service_data[2] & 0x7f
         # Light state
