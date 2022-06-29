@@ -8,7 +8,15 @@ class MotionSensor(SwitchBotDevice):
     def __init__(self, d: BLEDevice, service_data: bytearray):
         self.motion_l_limit = 0
         self.motion_l_timeout = 180
+        self.ignore_motion_timeout = False
+        self.ignore_motion_l_timeout = False
         super().__init__(d, service_data)
+
+    def clear_current_motion_timeout(self):
+        if self.motion:
+            self.ignore_motion_timeout = True
+        if self.motion_l:
+            self.ignore_motion_l_timeout = True
 
     def _update_properties(self, d: BLEDevice, service_data: bytearray):
         # Battery
@@ -40,8 +48,11 @@ class MotionSensor(SwitchBotDevice):
                 self.publish("motion")
                 self.motion_l_limit = 0
             else:
-                self.publish("no_motion")
-                self.motion_l_limit = self.last_motion + self.motion_l_timeout - 30
+                if self.ignore_motion_timeout:
+                    self.ignore_motion_timeout = False
+                else:
+                    self.publish("no_motion")
+                    self.motion_l_limit = self.last_motion + self.motion_l_timeout - 30
             self.log(f"motion: {self.prev['motion']} -> {self.motion}, last_motion: {self.prev['last_motion']} -> {self.last_motion}")
         if not self.motion and self.last_motion < self.motion_l_limit:
             self.motion_l = True
@@ -49,7 +60,10 @@ class MotionSensor(SwitchBotDevice):
             if self.motion_l == True:
                 self.publish("motion_l")
             else:
-                self.publish("no_motion_l")
+                if self.ignore_motion_l_timeout:
+                    self.ignore_motion_l_timeout = False
+                else:
+                    self.publish("no_motion_l")
             self.log(f"motion_l: {self.prev['motion_l']} -> {self.motion_l}, last_motion: {self.prev['last_motion']} -> {self.last_motion}")
 
     def __str__(self):

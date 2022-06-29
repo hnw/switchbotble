@@ -6,14 +6,15 @@ from datetime import datetime as dt
 from switchbotble import SwitchBotBLE
 from blinker import signal
 
-found       = signal('found')
-motion      = signal('motion')
-motion_l    = signal('motion_l')
-no_motion   = signal('no_motion')
-no_motion_l = signal('no_motion_l')
-opened      = signal('opened')
-closed      = signal('closed')
-pushed      = signal('pushed')
+found              = signal('found')
+motion             = signal('motion')
+motion_l           = signal('motion_l')
+no_motion          = signal('no_motion')
+no_motion_l        = signal('no_motion_l')
+opened             = signal('opened')
+closed             = signal('closed')
+pushed             = signal('pushed')
+floorlamp_force_on = signal('floorlamp_force_on')
 
 kitchen = '00:00:5E:00:53:C7'
 bedroom1 = '00:00:5E:00:53:22'
@@ -41,6 +42,14 @@ def allCatchListener(address, **kw):
         message = f": push_count = {device.push_count}"
     print(f"{dt.now().isoformat()} {address} {signal.name} {message}")
 
+@found.connect_via(bedroom1)
+def bedroom1_init(address, **kw):
+    device = kw['device']
+    device.debug = True
+    def clear_current_motion_timeout(address, **kw):
+        device.clear_current_motion_timeout()
+    floorlamp_force_on.connect(clear_current_motion_timeout, weak = False)
+
 @motion_l.connect_via(kitchen)
 def kitchen_on(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', 'キッチンのデバイスをつけて'])
@@ -60,10 +69,12 @@ def bedroom_off(address, **kw):
 
 @pushed.connect_via(bedroom2)
 def floorlamp_on_off(address, **kw):
-    if kw['device'].light:
+    device = kw['device']
+    if device.light:
         subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスを消して'])
     else:
         subprocess.Popen(['/home/pi/bin/g', 'フロアランプをつけて'])
+        device.publish("floorlamp_force_on")
 
 @closed.connect_via(bedroom1)
 def all_off(address, **kw):
