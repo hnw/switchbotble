@@ -23,7 +23,7 @@ class ContactSensor(MotionSensor):
         self.contact = (service_data[3] & 0x06) >> 1 # 0:close / 1: open / 2: timeout not close
         self.last_contact = service_data[7] + service_data[6]*256 + ((service_data[3] & 0x40) >> 6)*65536
         self.closed = True if self.contact == 0 else False
-        self.open = not self.closed
+        self.opened = not self.closed
         # Counters
         self.enter_count = (service_data[8] & 0xc0) >> 6
         self.exit_count = (service_data[8] & 0x30) >> 4
@@ -48,22 +48,22 @@ class ContactSensor(MotionSensor):
                 published = True
             elif self.prev['closed']:
                 # 0 => 1 or 2
-                self.publish("open")
+                self.publish("opened")
                 published = True
             elif self.contact == 1:
                 # 2 => 1
                 self.publish("closed")
-                self.publish("open")
+                self.publish("opened")
                 published = True
         elif self.closed and self.prev['last_contact'] > self.last_contact:
             # 0 => 0
-            self.publish("open")
+            self.publish("opened")
             self.publish("closed")
             published = True
-        elif self.open and self.prev['last_contact'] > self.last_contact:
+        elif self.opened and self.prev['last_contact'] > self.last_contact:
             # 1 => 1
             self.publish("closed")
-            self.publish("open")
+            self.publish("opened")
             published = True
         if published:
             self.log(f"contact: {self.prev['contact']} -> {self.contact}, last_contact: {self.prev['last_contact']} -> {self.last_contact}")

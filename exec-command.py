@@ -4,65 +4,74 @@ import asyncio
 import subprocess
 from datetime import datetime as dt
 from switchbotble import SwitchBotBLE
-from pubsub import pub
+from blinker import signal
 
-def allCatchListener(topicObj = pub.AUTO_TOPIC, **msgData):
-    device = msgData['arg1']
-    address,topicName = topicObj.getName().split('.')
+found       = signal('found')
+motion      = signal('motion')
+motion_l    = signal('motion_l')
+no_motion   = signal('no_motion')
+no_motion_l = signal('no_motion_l')
+opened      = signal('opened')
+closed      = signal('closed')
+pushed      = signal('pushed')
+
+kitchen = '00:00:5E:00:53:C7'
+bedroom1 = '00:00:5E:00:53:22'
+bedroom2 = '00:00:5E:00:53:E2'
+
+@found.connect
+@motion.connect
+@motion_l.connect
+@no_motion.connect
+@no_motion_l.connect
+@opened.connect
+@closed.connect
+@pushed.connect
+def allCatchListener(address, **kw):
+    device = kw['device']
+    signal = kw['signal']
     message = ""
-    if topicName == "connected":
+    if signal == found:
         message = f": rssi = {device.d.rssi}dBm"
-    elif topicName == "motion" or  topicName == "no_motion" or topicName == "motion_l" or  topicName == "no_motion_l":
+    elif signal == motion or  signal == no_motion or signal == motion_l or  signal == no_motion_l:
         message = f": last_motion = {device.last_motion}"
-    elif topicName == "open" or  topicName == "closed":
+    elif signal == opened or  signal == closed:
         message = f": contact = {device.contact}, last_contact = {device.last_contact}"
-    elif topicName == "pushed":
+    elif signal == pushed:
         message = f": push_count = {device.push_count}"
-    print(f"{dt.now().isoformat()} {address} {topicName} {message}")
+    print(f"{dt.now().isoformat()} {address} {signal.name} {message}")
 
-def kitchen_init(arg1):
-    pass
-
-def bedroom_init(arg1):
-    arg1.debug = True
-
-def kitchen_on(arg1):
+@motion_l.connect_via(kitchen)
+def kitchen_on(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', 'キッチンのデバイスをつけて'])
 
-def kitchen_off(arg1):
+@no_motion_l.connect_via(kitchen)
+def kitchen_off(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', 'キッチンのデバイスを消して'])
 
-def bedroom_on(arg1):
-    if arg1.open:
+@motion_l.connect_via(bedroom1)
+def bedroom_on(address, **kw):
+    if kw['device'].opened:
         subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスをつけて'])
 
-def bedroom_off(arg1):
+@no_motion_l.connect_via(bedroom1)
+def bedroom_off(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスを消して'])
 
-def floorlamp_on_off(arg1):
-    if arg1.light:
+@pushed.connect_via(bedroom2)
+def floorlamp_on_off(address, **kw):
+    if kw['device'].light:
         subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスを消して'])
     else:
         subprocess.Popen(['/home/pi/bin/g', 'フロアランプをつけて'])
 
-def all_off(arg1):
+@closed.connect_via(bedroom1)
+def all_off(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', '全部のデバイスを消して'])
 
 async def main():
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
     ble = SwitchBotBLE()
-    kitchen_addr = '00:00:5E:00:53:C7'
-    bedroom1_addr = '00:00:5E:00:53:22'
-    bedroom2_addr = '00:00:5E:00:53:E2'
-    ble.subscribe(allCatchListener)
-    ble.subscribe(kitchen_init, kitchen_addr, 'connected')
-    ble.subscribe(kitchen_on, kitchen_addr, 'motion_l')
-    ble.subscribe(kitchen_off, kitchen_addr, 'no_motion_l')
-    ble.subscribe(bedroom_init, bedroom1_addr, 'connected')
-    ble.subscribe(bedroom_on, bedroom1_addr, 'motion_l')
-    ble.subscribe(bedroom_off, bedroom1_addr, 'no_motion_l')
-    ble.subscribe(all_off, bedroom1_addr, 'closed')
-    ble.subscribe(floorlamp_on_off, bedroom2_addr, 'pushed')
 
     while True:
         await ble.start()
