@@ -1,2 +1,2 @@
-bleak==0.14.3
-blinker==1.4
+bleak>=0.14.3
+blinker>=1.4
