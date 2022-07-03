@@ -27,13 +27,13 @@ import platform
 import asyncio
 from switchbotble import SwitchBotBLE, motion, no_motion, closed
 
-# uses 48bit MAC address for Windows/Linux
+# uses 48bit MAC address on Windows/Linux
 kitchen = '00:00:5E:00:53:C7'
 bedroom = '00:00:5E:00:53:22'
 if platform.system() == "Darwin":
-    # uses 128bit UUID for MacOS
-    kitchen = '01234567-89AB-CDEF-0123-456789ABCDC7'
-    bedroom = '01234567-89AB-CDEF-0123-456789ABCD22'
+    # uses 128bit UUID on MacOS
+    kitchen = 'ECFAB3FC-FAE2-11EC-A7F7-00005E0053C7'
+    bedroom = 'ECFAB3FC-FAE2-11EC-A7F7-00005E005322'
 
 @motion.connect_via(kitchen)
 def kitchen_on(address, **kwargs):

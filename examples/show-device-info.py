@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 import asyncio
 from datetime import datetime as dt
-from switchbotble import SwitchBotBLE, found, motion, no_motion, opened, closed, pushed
+from switchbotble import SwitchBotBLE, found, motion, no_motion, light, dark, opened, closed, entered, exited, pushed
 
 @found.connect
 @motion.connect
 @no_motion.connect
+@light.connect
+@dark.connect
 @opened.connect
 @closed.connect
+@entered.connect
+@exited.connect
 @pushed.connect
 def allCatchListener(address, device, signal, **kwargs):
     message = ""
