@@ -4,8 +4,8 @@ from datetime import datetime as dt
 from blinker import signal
 
 class SwitchBotDevice(metaclass=ABCMeta):
-    def __init__(self, d: BLEDevice, service_data: bytearray):
-        self.debug = False
+    def __init__(self, d: BLEDevice, service_data: bytearray, debug = False, **kwargs):
+        self.debug = debug
         self.d = d
         self.prev = None
         self._update_properties(d, service_data)

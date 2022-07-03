@@ -13,9 +13,10 @@ class SwitchBotBLE(BleakScanner):
     # 0xfd3d : Woan Technology (Shenzhen) Co., Ltd.
     __uuid = "0000fd3d-0000-1000-8000-00805f9b34fb"
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
         self.__switchbot_devices = {}
+        self.__kwargs = kwargs
         self.register_detection_callback(self.__detection_callback)
 
     def __detection_callback(self, d: BLEDevice, ad: AdvertisementData) -> None:
@@ -24,4 +25,4 @@ class SwitchBotBLE(BleakScanner):
             if d.address in self.__switchbot_devices:
                 self.__switchbot_devices[d.address].update(d, service_data)
             else:
-                self.__switchbot_devices[d.address] = factory.create(d, service_data)
+                self.__switchbot_devices[d.address] = factory.create(d, service_data, **self.__kwargs)

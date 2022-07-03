@@ -8,9 +8,7 @@ from blinker import signal
 
 found              = signal('found')
 motion             = signal('motion')
-motion_l           = signal('motion_l')
 no_motion          = signal('no_motion')
-no_motion_l        = signal('no_motion_l')
 opened             = signal('opened')
 closed             = signal('closed')
 pushed             = signal('pushed')
@@ -22,9 +20,7 @@ bedroom2 = '00:00:5E:00:53:E2'
 
 @found.connect
 @motion.connect
-@motion_l.connect
 @no_motion.connect
-@no_motion_l.connect
 @opened.connect
 @closed.connect
 @pushed.connect
@@ -34,7 +30,7 @@ def allCatchListener(address, **kw):
     message = ""
     if signal == found:
         message = f": rssi = {device.d.rssi}dBm"
-    elif signal == motion or  signal == no_motion or signal == motion_l or  signal == no_motion_l:
+    elif signal == motion or  signal == no_motion:
         message = f": last_motion = {device.last_motion}"
     elif signal == opened or  signal == closed:
         message = f": contact = {device.contact}, last_contact = {device.last_contact}"
@@ -50,20 +46,20 @@ def bedroom1_init(address, **kw):
         device.clear_current_motion_timeout()
     floorlamp_force_on.connect(clear_current_motion_timeout, weak = False)
 
-@motion_l.connect_via(kitchen)
+@motion.connect_via(kitchen)
 def kitchen_on(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', 'キッチンのデバイスをつけて'])
 
-@no_motion_l.connect_via(kitchen)
+@no_motion.connect_via(kitchen)
 def kitchen_off(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', 'キッチンのデバイスを消して'])
 
-@motion_l.connect_via(bedroom1)
+@motion.connect_via(bedroom1)
 def bedroom_on(address, **kw):
     if kw['device'].opened:
         subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスをつけて'])
 
-@no_motion_l.connect_via(bedroom1)
+@no_motion.connect_via(bedroom1)
 def bedroom_off(address, **kw):
     subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスを消して'])
 
@@ -82,8 +78,7 @@ def all_off(address, **kw):
 
 async def main():
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
-    ble = SwitchBotBLE()
-
+    ble = SwitchBotBLE(motion_timeout = 180)
     while True:
         await ble.start()
         await asyncio.sleep(2.0)

@@ -6,9 +6,8 @@ from .motion_sensor import MotionSensor
 # HAL = Hall effect sensor, contact sensor (open/close sensor)
 
 class ContactSensor(MotionSensor):
-    def __init__(self, d: BLEDevice, service_data: bytearray):
-        self.virtual_pir_limit = 0
-        super().__init__(d, service_data)
+    def __init__(self, d: BLEDevice, service_data: bytearray, **kwargs):
+        super().__init__(d, service_data, **kwargs)
 
     def _update_properties(self, d: BLEDevice, service_data: bytearray):
         # Battery
@@ -16,9 +15,9 @@ class ContactSensor(MotionSensor):
         # Light state
         self.light = True if service_data[3] & 0x01 else False
         # PIR state
-        self.motion = True if service_data[1] & 0x40 else False
+        self.motion_raw = True if service_data[1] & 0x40 else False
         self.last_motion = service_data[5] + service_data[4]*256 + ((service_data[3] & 0x80) >> 7)*65536
-        self.motion_l = self.motion
+        self.motion = self.motion_raw
         # HAL state
         self.contact = (service_data[3] & 0x06) >> 1 # 0:close / 1: open / 2: timeout not close
         self.last_contact = service_data[7] + service_data[6]*256 + ((service_data[3] & 0x40) >> 6)*65536
@@ -85,4 +84,4 @@ class ContactSensor(MotionSensor):
             self.log(f"button_count: {self.prev['button_count']} -> {self.button_count}")
 
     def __str__(self):
-        return f"{self.__class__.__name__}: battery={self.battery}, light={self.light}, motion={self.motion}, motion_l={self.motion_l}, last_motion={self.last_motion}, contact={self.contact}, hal_utc={self.last_contact}, enter_count={self.enter_count}, exit_count={self.exit_count}, button_count={self.button_count}"
+        return f"{self.__class__.__name__}: battery={self.battery}, light={self.light}, motion_raw={self.motion_raw}, motion={self.motion}, last_motion={self.last_motion}, contact={self.contact}, hal_utc={self.last_contact}, enter_count={self.enter_count}, exit_count={self.exit_count}, button_count={self.button_count}"
