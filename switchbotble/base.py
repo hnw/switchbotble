@@ -4,6 +4,18 @@ from bleak import BleakScanner
 from bleak.backends.scanner import BLEDevice, AdvertisementData
 from .devices.base import SwitchBotDevice
 from .devices.factory import SwitchBotDeviceFactory as factory
+from blinker import signal
+
+found     = signal('found')
+motion    = signal('motion')
+no_motion = signal('no_motion')
+light     = signal('light')
+dark      = signal('dark')
+opened    = signal('opened')
+closed    = signal('closed')
+entered   = signal('entered')
+exited    = signal('exited')
+pushed    = signal('pushed')
 
 class SwitchBotBLE(BleakScanner):
     # via: https://www.bluetooth.com/ja-jp/specifications/assigned-numbers/company-identifiers/

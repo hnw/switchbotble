@@ -1,4 +1,13 @@
-from .switchbot_ble import SwitchBotBLE
-from .devices.base import SwitchBotDevice
-from .devices.contact_sensor import ContactSensor
-from .devices.motion_sensor import MotionSensor
+from switchbotble.base import (
+    SwitchBotBLE,
+    found,
+    motion,
+    no_motion,
+    light,
+    dark,
+    opened,
+    closed,
+    entered,
+    exited,
+    pushed,
+)

@@ -3,16 +3,8 @@ import os,sys
 import asyncio
 import subprocess
 from datetime import datetime as dt
-from switchbotble import SwitchBotBLE
+from switchbotble import SwitchBotBLE, found, motion, no_motion, opened, closed, pushed
 from blinker import signal
-
-found              = signal('found')
-motion             = signal('motion')
-no_motion          = signal('no_motion')
-opened             = signal('opened')
-closed             = signal('closed')
-pushed             = signal('pushed')
-floorlamp_force_on = signal('floorlamp_force_on')
 
 kitchen = '00:00:5E:00:53:C7'
 bedroom1 = '00:00:5E:00:53:22'
@@ -24,9 +16,7 @@ bedroom2 = '00:00:5E:00:53:E2'
 @opened.connect
 @closed.connect
 @pushed.connect
-def allCatchListener(address, **kw):
-    device = kw['device']
-    signal = kw['signal']
+def allCatchListener(address, device, signal, **kwargs):
     message = ""
     if signal == found:
         message = f": rssi = {device.d.rssi}dBm"
@@ -44,6 +34,7 @@ def bedroom1_init(address, **kw):
     device.debug = True
     def clear_current_motion_timeout(address, **kw):
         device.clear_current_motion_timeout()
+    floorlamp_force_on = signal('floorlamp_force_on')
     floorlamp_force_on.connect(clear_current_motion_timeout, weak = False)
 
 @motion.connect_via(kitchen)
@@ -70,7 +61,7 @@ def floorlamp_on_off(address, **kw):
         subprocess.Popen(['/home/pi/bin/g', '寝室のデバイスを消して'])
     else:
         subprocess.Popen(['/home/pi/bin/g', 'フロアランプをつけて'])
-        device.publish("floorlamp_force_on")
+        device.publish('floorlamp_force_on')
 
 @closed.connect_via(bedroom1)
 def all_off(address, **kw):

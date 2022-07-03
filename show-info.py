@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 import asyncio
 from datetime import datetime as dt
-from switchbotble import SwitchBotBLE
-from blinker import ANY, signal
-
-found       = signal('found')
-motion      = signal('motion')
-no_motion   = signal('no_motion')
-opened      = signal('opened')
-closed      = signal('closed')
-pushed      = signal('pushed')
+from switchbotble import SwitchBotBLE, found, motion, no_motion, opened, closed, pushed
 
 @found.connect
 @motion.connect
@@ -17,9 +9,7 @@ pushed      = signal('pushed')
 @opened.connect
 @closed.connect
 @pushed.connect
-def allCatchListener(address, **kw):
-    device = kw['device']
-    signal = kw['signal']
+def allCatchListener(address, device, signal, **kwargs):
     message = ""
     if signal == found:
         message = f": rssi = {device.d.rssi}dBm"
