@@ -25,7 +25,3 @@ class SwitchBotBLE(BleakScanner):
                 self.__switchbot_devices[d.address].update(d, service_data)
             else:
                 self.__switchbot_devices[d.address] = factory.create(d, service_data)
-
-    @staticmethod
-    def subscribe(listener, address: str = None, topicName: str = None):
-        SwitchBotDevice.subscribe(listener, address, topicName)

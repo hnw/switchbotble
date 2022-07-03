@@ -21,15 +21,6 @@ class SwitchBotDevice(metaclass=ABCMeta):
         sig = signal(topicName)
         sig.send(f"{self.d.address}", device=self, signal=sig)
 
-    @staticmethod
-    def subscribe(listener, address: str = None, topicName: str = None):
-        if address == None:
-            topicName = pub.ALL_TOPICS
-        elif topicName == None:
-            topicName = f"{address}"
-        else:
-            topicName = f"{address}.{topicName}"
-
     @abstractmethod
     def _update_properties(self, d: BLEDevice, service_data: bytearray):
         pass
