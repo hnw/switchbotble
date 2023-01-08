@@ -8,7 +8,7 @@ $ pip install switchbotble
 
 ## Features
 
-* Scans all nearby SwitchBot devices, and publishes events if the sensor value changed.
+* Scans all nearby SwitchBot devices with BLE, and publishes events if the sensor value changed.
 * Supports BLE on Windows 10, Linux, OS X/macOS (provided by BLE library [Bleak](https://github.com/hbldh/bleak))
 * Supporting Switchbot sensors:
   * Contact sensor
@@ -37,11 +37,11 @@ if platform.system() == "Darwin":
 
 @motion.connect_via(kitchen)
 def kitchen_on(address, **kwargs):
-    subprocess.Popen(['google', 'Turn on devices in kitchen'])
+    subprocess.Popen(['google', 'Turn on all lights in kitchen'])
 
 @no_motion.connect_via(kitchen)
 def kitchen_off(address, **kwargs):
-    subprocess.Popen(['google', 'Turn off devices in kitchen'])
+    subprocess.Popen(['google', 'Turn off all lights in kitchen'])
 
 @closed.connect_via(bedroom)
 def all_off(address, **kwargs):

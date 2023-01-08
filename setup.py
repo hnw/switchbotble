@@ -17,7 +17,7 @@ DESCRIPTION = 'An event-driven SwitchBot sensor library using BLE'
 URL = 'https://github.com/hnw/switchbotble'
 AUTHOR = 'Yoshio HANAWA'
 REQUIRES_PYTHON = '>=3.7.0'
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------

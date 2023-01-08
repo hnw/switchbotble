@@ -59,7 +59,7 @@ class ContactSensor(MotionSensor):
             self.publish("opened")
             self.publish("closed")
             published = True
-        elif self.opened and self.prev['last_contact'] > self.last_contact:
+        elif self.contact == 1 and self.prev['last_contact'] > self.last_contact:
             # 1 => 1
             self.publish("closed")
             self.publish("opened")
