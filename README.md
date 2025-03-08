@@ -28,8 +28,8 @@ import asyncio
 from switchbotble import SwitchBotBLE, motion, no_motion, closed
 
 # uses 48bit MAC address on Windows/Linux
-kitchen = '00:00:5E:00:53:C7'
-bedroom = '00:00:5E:00:53:22'
+kitchen = '00:00:5E:00:53:C7' # Mac Address for motion sensor
+bedroom = '00:00:5E:00:53:22' # Mac Address for contact sensor
 if platform.system() == "Darwin":
     # uses 128bit UUID on MacOS
     kitchen = 'ECFAB3FC-FAE2-11EC-A7F7-00005E0053C7'

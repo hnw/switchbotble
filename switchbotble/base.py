@@ -18,23 +18,39 @@ exited    = signal('exited')
 pushed    = signal('pushed')
 
 class SwitchBotBLE(BleakScanner):
-    # via: https://www.bluetooth.com/ja-jp/specifications/assigned-numbers/company-identifiers/
-    __company_id = 0x0969 # Woan Technology (Shenzhen) Co., Ltd.
+    # Company IDs for SwitchBot
+    #   https://github.com/OpenWonderLabs/SwitchBotAPI-BLE
+    #   https://www.bluetooth.com/ja-jp/specifications/assigned-numbers/company-identifiers/
+    __company_id = [ 0x0059, 0x0969 ]
 
-    # via: https://www.bluetooth.com/specifications/assigned-numbers/ "16-bit UUIDs"
+    # UUIDs for SwitchBot
+    #   https://github.com/OpenWonderLabs/SwitchBotAPI-BLE
+    #   https://www.bluetooth.com/specifications/assigned-numbers/ "16-bit UUIDs"
     # 0xfd3d : Woan Technology (Shenzhen) Co., Ltd.
-    __uuid = "0000fd3d-0000-1000-8000-00805f9b34fb"
+    # 0x0d00 : old Service UUID
+    __uuid = ["00000d00-0000-1000-8000-00805f9b34fb",
+              "0000fd3d-0000-1000-8000-00805f9b34fb"]
 
     def __init__(self, **kwargs):
-        super().__init__()
+        super().__init__(detection_callback=self.__detection_callback)
         self.__switchbot_devices = {}
         self.__kwargs = kwargs
-        self.register_detection_callback(self.__detection_callback)
 
     def __detection_callback(self, d: BLEDevice, ad: AdvertisementData) -> None:
-        if ad.service_data and self.__uuid in ad.service_data:
-            service_data = ad.service_data[self.__uuid]
-            if d.address in self.__switchbot_devices:
-                self.__switchbot_devices[d.address].update(d, service_data)
-            else:
-                self.__switchbot_devices[d.address] = factory.create(d, service_data, **self.__kwargs)
+        if len(ad.manufacturer_data) != 1:
+            return
+        if len(ad.service_data) != 1:
+            return
+        company_id = next(iter(ad.manufacturer_data.keys()))
+        uuid = next(iter(ad.service_data.keys()))
+        if not company_id in self.__company_id:
+            return
+        if not uuid in self.__uuid:
+            return
+        device = self.__switchbot_devices.get(d.address)
+        if device == None:
+            service_data = ad.service_data[uuid]
+            dev_type = bytearray(service_data)[0]
+            device = factory.create(dev_type, d, **self.__kwargs)
+            self.__switchbot_devices[d.address] = device
+        device.update(ad)

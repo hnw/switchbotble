@@ -1,32 +1,33 @@
 from abc import ABCMeta, abstractmethod
-from bleak.backends.scanner import BLEDevice
+from bleak.backends.scanner import BLEDevice, AdvertisementData
 from datetime import datetime as dt
 from blinker import signal
 
 class SwitchBotDevice(metaclass=ABCMeta):
-    def __init__(self, d: BLEDevice, service_data: bytearray, debug = False, **kwargs):
+    def __init__(self, d: BLEDevice, debug = False, **kwargs):
         self.debug = debug
         self.d = d
-        self.prev = None
-        self._update_properties(d, service_data)
-        self.publish("found")
+        self.status = None
 
-    def update(self, d: BLEDevice, service_data: bytearray):
-        self.d = d
-        self.prev = self.__dict__.copy()
-        self._update_properties(d, service_data)
-        self._check_diff()
+    def update(self, ad: AdvertisementData):
+        current_status = self._parse_advertisement_data(ad)
+        if self.status == None:
+            self.status = current_status
+            self.publish("found")
+        else:
+            self._check_status(current_status)
+            self.status = current_status
 
-    def publish(self, topicName: str):
-        sig = signal(topicName)
+    def publish(self, topic_name: str):
+        sig = signal(topic_name)
         sig.send(f"{self.d.address}", device=self, signal=sig)
 
     @abstractmethod
-    def _update_properties(self, d: BLEDevice, service_data: bytearray):
+    def _parse_advertisement_data(self, ad: AdvertisementData):
         pass
 
     @abstractmethod
-    def _check_diff(self):
+    def _check_status(self, curr):
         pass
 
     def log(self, message: str):

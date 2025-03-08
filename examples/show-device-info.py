@@ -16,14 +16,14 @@ from switchbotble import SwitchBotBLE, found, motion, no_motion, light, dark, op
 def allCatchListener(address, device, signal, **kwargs):
     message = ""
     if signal == found:
-        message = f": rssi = {device.d.rssi}dBm"
+        message = f": rssi = {device.status['rssi']}dBm"
     elif signal == motion or  signal == no_motion:
-        message = f": last_motion = {device.last_motion}"
+        message = f": last_motion = {device.status['last_motion']}"
     elif signal == opened or  signal == closed:
-        message = f": contact = {device.contact}, last_contact = {device.last_contact}"
+        message = f": contact = {device.status['contact']}, last_contact = {device.status['last_contact']}"
     elif signal == pushed:
-        message = f": push_count = {device.push_count}"
-    print(f"{dt.now().isoformat()} {address} {signal.name} {message}")
+        message = f": push_count = {device.status['push_count']}"
+    print(f"{dt.now().isoformat()} {address} signal={signal.name} {message}")
 
 async def main():
     ble = SwitchBotBLE(motion_timeout = 60)

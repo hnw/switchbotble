@@ -1,4 +1,4 @@
-from switchbotble.base import (
+from .base import (
     SwitchBotBLE,
     found,
     motion,
