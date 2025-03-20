@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from enum import Enum
 from bleak.backends.scanner import BLEDevice, AdvertisementData
 from .base import SwitchBotDevice
 from .contact_sensor import ContactSensor
@@ -8,19 +9,27 @@ from .meter_pro import MeterPro
 from .water_leak_detector import WaterLeakDetector
 from .unknown_sensor import UnknownSensor
 
+class DeviceType(Enum):
+    # see: https://github.com/OpenWonderLabs/SwitchBotAPI-BLE#device-types
+    CONTACT_SENSOR = 0x64
+    MOTION_SENSOR = 0x73
+    METER = 0x54
+    METER_PRO = 0x35
+    WATER_LEAK_DETECTOR = 0x26
+
 class SwitchBotDeviceFactory(metaclass=ABCMeta):
     @staticmethod
     def create(dev_type: int, d: BLEDevice, **kwargs) -> SwitchBotDevice:
         # see: https://github.com/OpenWonderLabs/SwitchBotAPI-BLE#device-types
-        if dev_type == 0x64:
+        if device_type == DeviceType.CONTACT_SENSOR:
             return ContactSensor(d, **kwargs)
-        elif dev_type == 0x73:
+        elif device_type == DeviceType.MOTION_SENSOR:
             return MotionSensor(d, **kwargs)
-        elif dev_type == 0x54:
+        elif device_type == DeviceType.METER:
             return Meter(d, **kwargs)
-        elif dev_type == 0x35:
+        elif device_type == DeviceType.METER_PRO:
             return MeterPro(d, **kwargs)
-        elif dev_type == 0x26:
+        elif device_type == DeviceType.WATER_LEAK_DETECTOR:
             return WaterLeakDetector(d, **kwargs)
         else:
             if kwargs.get("debug"):
