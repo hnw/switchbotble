@@ -8,27 +8,19 @@ from .meter_pro import MeterPro
 from .water_leak_detector import WaterLeakDetector
 from .unknown_sensor import UnknownSensor
 
-class DeviceType(Enum):
-    # see: https://github.com/OpenWonderLabs/SwitchBotAPI-BLE#device-types
-    CONTACT_SENSOR = 0x64
-    MOTION_SENSOR = 0x73
-    METER = 0x54
-    METER_PRO = 0x35
-    WATER_LEAK_DETECTOR = 0x26
-
 class SwitchBotDeviceFactory(metaclass=ABCMeta):
     @staticmethod
     def create(dev_type: int, d: BLEDevice, **kwargs) -> SwitchBotDevice:
         # see: https://github.com/OpenWonderLabs/SwitchBotAPI-BLE#device-types
-        if device_type == DeviceType.CONTACT_SENSOR:
+        if dev_type == 0x64:
             return ContactSensor(d, **kwargs)
-        elif device_type == DeviceType.MOTION_SENSOR:
+        elif dev_type == 0x73:
             return MotionSensor(d, **kwargs)
-        elif device_type == DeviceType.METER:
+        elif dev_type == 0x54:
             return Meter(d, **kwargs)
-        elif device_type == DeviceType.METER_PRO:
+        elif dev_type == 0x35:
             return MeterPro(d, **kwargs)
-        elif device_type == DeviceType.WATER_LEAK_DETECTOR:
+        elif dev_type == 0x26:
             return WaterLeakDetector(d, **kwargs)
         else:
             if kwargs.get("debug"):

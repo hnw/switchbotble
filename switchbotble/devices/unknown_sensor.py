@@ -14,9 +14,12 @@ class UnknownSensor(SwitchBotDevice):
             'service_data': service_data,
         }
 
-    def _process_status(self):
-        if self.prev_status != None:
-            if self.prev_status['manufacturer_data'] != self.status['manufacturer_data']:
-                self.log(f"manufacturer_data: {self.prev_status['manufacturer_data']} -> {self.status['manufacturer_data']}")
-            if self.prev_status['service_data'] != self.status['service_data']:
-                self.log(f"service_data: {self.prev_status['service_data']} -> {self.status['service_data']}")
+    def _check_status(self, curr):
+        prev = self.status
+        if prev['manufacturer_data'] != curr['manufacturer_data']:
+            self.log(f"manufacturer_data: {prev['manufacturer_data']} -> {curr['manufacturer_data']}")
+        if prev['service_data'] != curr['service_data']:
+            self.log(f"service_data: {prev['service_data']} -> {curr['service_data']}")
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: battery={self.battery}, light={self.light}, motion_raw={self.motion_raw}, motion={self.motion}, last_motion={self.last_motion}, contact={self.contact}, hal_utc={self.last_contact}, enter_count={self.enter_count}, exit_count={self.exit_count}, button_count={self.button_count}"
