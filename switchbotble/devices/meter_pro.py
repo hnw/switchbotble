@@ -31,8 +31,5 @@ class MeterPro(SwitchBotDevice):
             status['co2_level'] = (data[15] & 0x60) >> 5 # 0:good, 1:average, 2:poor
         return status
 
-    def _check_status(self, curr):
-        prev = self.status
-
-    def __str__(self):
-        return f"{self.__class__.__name__}: battery={self.battery}, light={self.light}, motion_raw={self.motion_raw}, motion={self.motion}, last_motion={self.last_motion}, contact={self.contact}, hal_utc={self.last_contact}, enter_count={self.enter_count}, exit_count={self.exit_count}, button_count={self.button_count}"
+    def _publish_signal(self):
+        pass
